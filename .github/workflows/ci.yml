@@ -35,7 +35,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          Docker_Compose/
+          Docker_Compose/*
         tag_name: latest
         token: ${{ secrets.GITHUB_TOKEN }}
         draft: false
