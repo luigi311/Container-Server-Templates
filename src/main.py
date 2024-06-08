@@ -34,19 +34,39 @@ def format_section(section_name, items, format_string):
 def generate_docker_yaml(app_name, template):
     app_name = re.sub(r"[^a-zA-Z0-9_-]", "", app_name).lower()
     description = clean_description(template.get("description", ""))
-    
+
     docker_compose_yaml = f"# {description}\n\nservices:\n  {app_name}:\n"
     docker_compose_yaml += f"    image: {template['image']}\n    container_name: {app_name}\n    restart: unless-stopped\n    network_mode: {template['network_mode']}\n"
 
     if template.get("post_arguments"):
         docker_compose_yaml += f"    command: {template['post_arguments']}\n"
-    
-    docker_compose_yaml += format_section("ports", template.get("ports"), "\n      # {key} {description}\n      - {item[Default]}:{item[Target]}")
-    docker_compose_yaml += format_section("environment", template.get("environment"), "\n      # {key} {description}\n      - {item[Target]}={item[Default]}")
-    docker_compose_yaml += format_section("volumes", template.get("volumes"), "\n      # {key} {description}\n      - {item[Default]}:{item[Target]}")
-    docker_compose_yaml += format_section("labels", template.get("labels"), "\n      # {key} {description}\n      - {item[Target]}={item[Default]}")
-    docker_compose_yaml += format_section("devices", template.get("devices"), "\n      # {key} {description}\n      - {item[Target]}:{item[Default]}")
-    
+
+    docker_compose_yaml += format_section(
+        "ports",
+        template.get("ports"),
+        "\n      # {key} {description}\n      - {item[Default]}:{item[Target]}",
+    )
+    docker_compose_yaml += format_section(
+        "environment",
+        template.get("environment"),
+        "\n      # {key} {description}\n      - {item[Target]}={item[Default]}",
+    )
+    docker_compose_yaml += format_section(
+        "volumes",
+        template.get("volumes"),
+        "\n      # {key} {description}\n      - {item[Default]}:{item[Target]}",
+    )
+    docker_compose_yaml += format_section(
+        "labels",
+        template.get("labels"),
+        "\n      # {key} {description}\n      - {item[Target]}={item[Default]}",
+    )
+    docker_compose_yaml += format_section(
+        "devices",
+        template.get("devices"),
+        "\n      # {key} {description}\n      - {item[Target]}:{item[Default]}",
+    )
+
     return docker_compose_yaml
 
 
@@ -58,12 +78,12 @@ def create_app_docker_compose(folder, app_name, template):
     app_name = sanitize_name(app_name)
     docker_compose_yaml = generate_docker_yaml(app_name, template)
     os.makedirs(folder, exist_ok=True)
-    
+
     docker_file_path = f"{folder}/docker-compose.yml"
     if os.path.exists(docker_file_path):
         print(f"docker-compose.yml file already exists at {docker_file_path}")
         os.replace(docker_file_path, f"{docker_file_path}.old")
-    
+
     with open(docker_file_path, "w") as f:
         f.write(docker_compose_yaml)
 
@@ -109,8 +129,14 @@ def create_all_apps_docker_compose(folder, templates):
 
 
 def arg_parser():
-    parser = argparse.ArgumentParser(description="Create templates for Container-Server")
-    parser.add_argument("--update_templates", action="store_true", help="Update templates from repositoryList and repositories")
+    parser = argparse.ArgumentParser(
+        description="Create templates for Container-Server"
+    )
+    parser.add_argument(
+        "--update_templates",
+        action="store_true",
+        help="Update templates from repositoryList and repositories",
+    )
     parser.add_argument("--list", action="store_true", help="List apps")
     return parser.parse_args()
 
@@ -120,7 +146,11 @@ def generate_app_list(folder):
     for app in os.listdir(folder):
         app_path = os.path.join(folder, app)
         if os.path.isdir(app_path):
-            app_list[app] = [sanitize_name(author) for author in os.listdir(app_path) if os.path.isdir(os.path.join(app_path, author))]
+            app_list[app] = [
+                sanitize_name(author)
+                for author in os.listdir(app_path)
+                if os.path.isdir(os.path.join(app_path, author))
+            ]
     with open(os.path.join(folder, "app_list.json"), "w") as f:
         json.dump(app_list, f, indent=4, sort_keys=True)
 
@@ -129,7 +159,7 @@ def main():
     try:
         args = arg_parser()
         templates = load_templates(DOCKER_COMPOSE_FOLDER) or update_templates()
-        
+
         if args.update_templates and not templates:
             templates = update_templates()
 
