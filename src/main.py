@@ -143,14 +143,20 @@ def arg_parser():
 
 def generate_app_list(folder):
     app_list = {}
+    app_list["apps"] = []
+    app_list["authors"] = []
+
     for app in os.listdir(folder):
+        app_list["apps"].append(sanitize_name(app))
         app_path = os.path.join(folder, app)
         if os.path.isdir(app_path):
-            app_list[app] = [
-                sanitize_name(author)
-                for author in os.listdir(app_path)
-                if os.path.isdir(os.path.join(app_path, author))
-            ]
+            for author in os.listdir(app_path):
+                app_list["authors"].append(sanitize_name(author))
+
+    # Remove duplicates
+    app_list["apps"] = list(set(app_list["apps"]))
+    app_list["authors"] = list(set(app_list["authors"]))
+
     with open(os.path.join(folder, "app_list.json"), "w") as f:
         json.dump(app_list, f, indent=4, sort_keys=True)
 
