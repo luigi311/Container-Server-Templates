@@ -33,9 +33,12 @@ jobs:
 
     # Zip Docker_Compose
     - name: Zip Docker_Compose
-      run: zip -r Docker_Compose.zip Docker_Compose
+      run: |
+        cd Docker_Compose 
+        zip -r ../Docker_Compose.zip *
 
     - name: Create Release
+      if: github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v2
       with:
         files: Docker_Compose.zip
