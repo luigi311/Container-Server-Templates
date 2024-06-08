@@ -36,6 +36,7 @@ jobs:
       with:
         files: |
           Docker_Compose/
+        tag_name: latest
         token: ${{ secrets.GITHUB_TOKEN }}
         draft: false
         prerelease: false
