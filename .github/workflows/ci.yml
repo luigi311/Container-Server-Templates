@@ -1,0 +1,38 @@
+name: Generate Compose Files
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Once a week
+    - cron: '0 0 * * 0'
+
+permissions:
+  contents: read
+
+jobs:
+  generate-compose-files:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+  
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+  
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Generate Compose Files
+      run: python main.py
+
+    - name: Upload Compose Files
+      uses: actions/upload-artifact@v4
+      with:
+        name: Docker_Compose
+        path: Docker_Compose/
