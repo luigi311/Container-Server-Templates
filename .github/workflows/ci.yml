@@ -31,11 +31,14 @@ jobs:
     - name: Generate Compose Files
       run: python main.py
 
+    # Zip Docker_Compose
+    - name: Zip Docker_Compose
+      run: zip -r Docker_Compose.zip Docker_Compose
+
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        files: |
-          Docker_Compose/*
+        files: Docker_Compose.zip
         tag_name: latest
         token: ${{ secrets.GITHUB_TOKEN }}
         draft: false
