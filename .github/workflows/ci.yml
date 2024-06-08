@@ -9,7 +9,7 @@ on:
     - cron: '0 0 * * 0'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   generate-compose-files:
@@ -31,8 +31,15 @@ jobs:
     - name: Generate Compose Files
       run: python main.py
 
-    - name: Upload Compose Files
-      uses: actions/upload-artifact@v4
+    # Zip Docker_Compose
+    - name: Zip Docker_Compose
+      run: zip -r Docker_Compose.zip Docker_Compose
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
       with:
-        name: Docker_Compose
-        path: Docker_Compose/
+        files: Docker_Compose.zip
+        tag_name: latest
+        token: ${{ secrets.GITHUB_TOKEN }}
+        draft: false
+        prerelease: false
