@@ -142,16 +142,21 @@ def arg_parser():
 
 
 def generate_app_list(folder):
+    # Create json file with list of apps and authors and the structure of the folder
     app_list = {}
     app_list["apps"] = []
     app_list["authors"] = []
+    app_list["folder_structure"] = {}
 
     for app in os.listdir(folder):
-        app_list["apps"].append(sanitize_name(app))
+        app_list["apps"].append(app)
+        app_list["folder_structure"][app] = []
+
         app_path = os.path.join(folder, app)
         if os.path.isdir(app_path):
             for author in os.listdir(app_path):
-                app_list["authors"].append(sanitize_name(author))
+                app_list["folder_structure"][app].append(author)
+                app_list["authors"].append(author)
 
     # Remove duplicates
     app_list["apps"] = list(set(app_list["apps"]))
@@ -176,6 +181,7 @@ def main():
         else:
             create_all_apps_docker_compose(DOCKER_COMPOSE_FOLDER, templates)
             generate_app_list(DOCKER_COMPOSE_FOLDER)
+
     except Exception as error:
         print(error)
         print(traceback.format_exc())
